@@ -231,14 +231,6 @@ make clean
 2. **並行度**: 根據 CPU 核心數調整並行處理數量
 3. **快取策略**: 對於重複使用的 embedding 啟用快取
 
-### 貢獻指南
-
-1. Fork 本專案
-2. 創建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交變更 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 開啟 Pull Request
-
 ## 授權
 
 本專案採用 MIT 授權條款。
