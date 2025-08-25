@@ -47,6 +47,8 @@ def generate_training_datasets(leaf_file: str,
                               max_text_length: int = 100,
                               triplet_per_anchor: int = 3,
                               max_triplets: int = 10000,
+                              use_clip: bool = True,
+                              clip_model: str = "clip-vit-large-patch14",
                               use_clip: bool = True) -> bool:
     """
     生成完整的訓練資料集
@@ -89,7 +91,7 @@ def generate_training_datasets(leaf_file: str,
     
     classification_file = output_path / "classification_dataset.csv"
     clip_flag = "--use_clip" if use_clip else "--no_clip"
-    cmd2 = f"python classification_dataset_generator.py --samples_file {samples_file} --leaf_file {leaf_file} --root_file {root_file} --output {classification_file} --embedding_dim {embedding_dim} --max_text_length {max_text_length} {clip_flag}"
+    cmd2 = f"python classification_dataset_generator.py --samples_file {samples_file} --leaf_file {leaf_file} --root_file {root_file} --output {classification_file} --embedding_dim {embedding_dim} --max_text_length {max_text_length} {clip_flag} --clip_model {clip_model}"
     
     if not run_command(cmd2, "生成分類訓練集"):
         return False
@@ -100,7 +102,7 @@ def generate_training_datasets(leaf_file: str,
     logger.info("=" * 60)
     
     triplet_file = output_path / "triplet_dataset.csv"
-    cmd3 = f"python triplet_dataset_generator.py --samples_file {samples_file} --leaf_file {leaf_file} --root_file {root_file} --output {triplet_file} --embedding_dim {embedding_dim} --max_text_length {max_text_length} --triplet_per_anchor {triplet_per_anchor} --max_triplets {max_triplets} {clip_flag}"
+    cmd3 = f"python triplet_dataset_generator.py --samples_file {samples_file} --leaf_file {leaf_file} --root_file {root_file} --output {triplet_file} --embedding_dim {embedding_dim} --max_text_length {max_text_length} --triplet_per_anchor {triplet_per_anchor} --max_triplets {max_triplets} {clip_flag} --clip_model {clip_model}"
     
     if not run_command(cmd3, "生成 Triplet 訓練集"):
         return False
@@ -226,6 +228,7 @@ def main():
     parser.add_argument('--max_triplets', type=int, default=10000, help='最大 triplet 數量')
     parser.add_argument('--use_clip', action='store_true', default=True, help='使用 CLIP 模型')
     parser.add_argument('--no_clip', dest='use_clip', action='store_false', help='不使用 CLIP 模型')
+    parser.add_argument('--clip_model', type=str, default='clip-vit-large-patch14', help='CLIP 模型名稱')
     
     args = parser.parse_args()
     
@@ -249,7 +252,8 @@ def main():
         max_text_length=args.max_text_length,
         triplet_per_anchor=args.triplet_per_anchor,
         max_triplets=args.max_triplets,
-        use_clip=args.use_clip
+        use_clip=args.use_clip,
+        clip_model=args.clip_model
     )
     
     if success:

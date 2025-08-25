@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class ClassificationDatasetGenerator:
-    def __init__(self, embedding_dim: int = 512, max_text_length: int = 100, use_clip: bool = True):
+    def __init__(self, embedding_dim: int = 512, max_text_length: int = 100, use_clip: bool = True, clip_model: str = "clip-vit-large-patch14"):
         """
         初始化分類資料集生成器
         
@@ -27,18 +27,24 @@ class ClassificationDatasetGenerator:
             embedding_dim: 文字 embedding 維度
             max_text_length: 文字最大長度
             use_clip: 是否使用 CLIP 模型
+            clip_model: CLIP 模型名稱
         """
         self.embedding_dim = embedding_dim
         self.max_text_length = max_text_length
         self.use_clip = use_clip
+        self.clip_model = clip_model
         self.vectorizer = None
         self.clip_processor = None
         
         if self.use_clip:
-            self.clip_processor = CLIPImageProcessor()
+            self.clip_processor = CLIPImageProcessor(model_name=clip_model)
             # CLIP 的 embedding 維度是固定的
             if hasattr(self.clip_processor, 'model') and self.clip_processor.model:
-                self.clip_embedding_dim = self.clip_processor.model.visual.output_dim
+                # 獲取 embedding 維度
+                if hasattr(self.clip_processor.model, 'vision_model'):
+                    self.clip_embedding_dim = self.clip_processor.model.vision_model.config.hidden_size
+                else:
+                    self.clip_embedding_dim = 512
             else:
                 self.clip_embedding_dim = 512
         
@@ -288,13 +294,15 @@ def main():
     parser.add_argument('--max_text_length', type=int, default=100, help='文字最大長度')
     parser.add_argument('--use_clip', action='store_true', default=True, help='使用 CLIP 模型')
     parser.add_argument('--no_clip', dest='use_clip', action='store_false', help='不使用 CLIP 模型')
+    parser.add_argument('--clip_model', type=str, default='clip-vit-large-patch14', help='CLIP 模型名稱')
     
     args = parser.parse_args()
     
     generator = ClassificationDatasetGenerator(
         embedding_dim=args.embedding_dim,
         max_text_length=args.max_text_length,
-        use_clip=args.use_clip
+        use_clip=args.use_clip,
+        clip_model=args.clip_model
     )
     
     generator.generate_classification_dataset(

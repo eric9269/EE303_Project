@@ -161,7 +161,7 @@ make clean
 - **BM25 樣本選擇**: 使用 TF-IDF 和餘弦相似度選擇正負樣本
 - **分類訓練集**: 生成用於二分類任務的訓練資料
 - **Triplet 訓練集**: 生成用於相似度學習的 triplet 資料
-- **CLIP 整合**: 使用 OpenAI CLIP 模型生成高品質圖片 embedding
+- **CLIP 整合**: 支援 EVA-CLIP 和標準 CLIP 模型生成高品質圖片 embedding
 
 ### 3. 兩階段模型訓練
 
@@ -173,7 +173,7 @@ make clean
 ### 4. 機器學習支援
 
 - **文字 Embedding**: 支援 BERT、TF-IDF 和自定義模型
-- **圖片 Embedding**: 使用 CLIP 模型（可選隨機向量）
+- **圖片 Embedding**: 支援 EVA-CLIP 和標準 CLIP 模型（可選隨機向量）
 - **資料正規化**: 所有 embedding 都已正規化
 - **批次處理**: 支援大規模資料的批次處理
 

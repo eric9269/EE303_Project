@@ -13,6 +13,7 @@ help:
 	@echo "  make install                 - 安裝依賴套件"
 	@echo "  make validate                - 驗證所有工具"
 	@echo "  make test                    - 運行基本功能測試"
+	@echo "  make test-eva-clip           - 測試 EVA-CLIP 功能"
 	@echo "  make clean                   - 清理暫存檔案"
 	@echo ""
 	@echo "資料處理:"
@@ -53,6 +54,11 @@ install:
 validate:
 	@echo "驗證所有工具..."
 	cd tools && PYTHONPATH=.. python quick_validate.py
+
+# 測試 EVA-CLIP
+test-eva-clip:
+	@echo "測試 EVA-CLIP 功能..."
+	cd tools && PYTHONPATH=.. python test_eva_clip.py
 
 # 基本功能測試
 test:
@@ -100,7 +106,8 @@ classification-dataset:
 		--root_file ../../data/correct_structure_data/root_v1_correct.csv \
 		--output classification_dataset.csv \
 		--embedding_dim 512 \
-		--use_clip
+		--use_clip \
+		--clip_model clip-vit-large-patch14
 
 triplet-dataset:
 	@echo "生成 Triplet 資料集..."
@@ -112,7 +119,8 @@ triplet-dataset:
 		--embedding_dim 512 \
 		--triplet_per_anchor 3 \
 		--max_triplets 10000 \
-		--use_clip
+		--use_clip \
+		--clip_model clip-vit-large-patch14
 
 # 模型訓練
 model-training: train-triplet train-classification

@@ -13,7 +13,7 @@ import logging
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
 import random
-from tools.embedding_processors.clip_image_processor import CLIPImageProcessor
+from clip_image_processor import CLIPImageProcessor
 
 # 設置日誌
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,8 +24,7 @@ class TripletDatasetGenerator:
                  embedding_dim: int = 512, 
                  max_text_length: int = 10240,
                  triplet_per_anchor: int = 3,
-                 use_clip: bool = True,
-                 clip_model: str = "clip-vit-large-patch14"):
+                 use_clip: bool = True):
         """
         初始化 Triplet 資料集生成器
         
@@ -34,24 +33,18 @@ class TripletDatasetGenerator:
             max_text_length: 文字最大長度
             triplet_per_anchor: 每個 anchor 生成的 triplet 數量
             use_clip: 是否使用 CLIP 模型
-            clip_model: CLIP 模型名稱
         """
         self.embedding_dim = embedding_dim
         self.max_text_length = max_text_length
         self.triplet_per_anchor = triplet_per_anchor
         self.use_clip = use_clip
-        self.clip_model = clip_model
         self.vectorizer = None
         self.clip_processor = None
         
         if self.use_clip:
-            self.clip_processor = CLIPImageProcessor(model_name=clip_model)
+            self.clip_processor = CLIPImageProcessor()
             if hasattr(self.clip_processor, 'model') and self.clip_processor.model:
-                # 獲取 embedding 維度
-                if hasattr(self.clip_processor.model, 'vision_model'):
-                    self.clip_embedding_dim = self.clip_processor.model.vision_model.config.hidden_size
-                else:
-                    self.clip_embedding_dim = 512
+                self.clip_embedding_dim = self.clip_processor.model.visual.output_dim
             else:
                 self.clip_embedding_dim = 512
         
@@ -366,7 +359,6 @@ def main():
     parser.add_argument('--max_triplets', type=int, default=10000, help='最大 triplet 數量')
     parser.add_argument('--use_clip', action='store_true', default=True, help='使用 CLIP 模型')
     parser.add_argument('--no_clip', dest='use_clip', action='store_false', help='不使用 CLIP 模型')
-    parser.add_argument('--clip_model', type=str, default='clip-vit-large-patch14', help='CLIP 模型名稱')
     
     args = parser.parse_args()
     
@@ -374,8 +366,7 @@ def main():
         embedding_dim=args.embedding_dim,
         max_text_length=args.max_text_length,
         triplet_per_anchor=args.triplet_per_anchor,
-        use_clip=args.use_clip,
-        clip_model=args.clip_model
+        use_clip=args.use_clip
     )
     
     generator.generate_triplet_dataset(
